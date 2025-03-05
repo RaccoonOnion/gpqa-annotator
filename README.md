@@ -1,122 +1,95 @@
 # GPQA Diamond Dataset Annotation Tool
 
-A lightweight web application for annotating the GPQA (General-Purpose Question Answering) diamond dataset. This tool allows multiple annotators to convert multiple-choice questions into open-ended questions while tracking their progress and saving their work.
+A web-based tool designed for annotating questions in the GPQA (General-Purpose Question Answering) Diamond Dataset, converting multiple-choice questions into open-ended formats with difficulty and confidence ratings.
 
 ## Overview
 
-This tool is designed to facilitate the annotation of the GPQA diamond dataset, which contains 198 multiple-choice questions. The annotation process involves:
+This application allows annotators to:
 
-1. Converting multiple-choice questions into open-ended questions
-2. Rating the difficulty of the annotation process (1-5 scale)
-3. Tracking progress and saving annotations
+1. Upload a CSV file containing multiple-choice questions
+2. Edit questions to make them open-ended
+3. Rate each question's difficulty (1-5)
+4. Indicate confidence in the ratings (1-5)
+5. Add notes about each question
+6. Download annotated data as CSV
+
+## Features
+
+- **User Authentication**: Simple name-based login system that assigns different question sets to different annotators
+- **Progress Tracking**: Visual progress bar showing completion status
+- **Auto-save**: Automatically saves work as you type or make selections
+- **CSV Import/Export**: Upload questions from CSV and download annotations as CSV
+- **Local Storage**: Saves annotations in the browser's local storage
+- **Navigation History**: Remembers recently visited questions for quick access
 
 ## Getting Started
 
 ### Prerequisites
 
-- A modern web browser (Chrome, Firefox, Edge, Safari)
-- The GPQA diamond dataset CSV file (`gpqa_diamond.csv`)
-- No server or internet connection is required to run the app
+- A modern web browser (Chrome, Firefox, Safari, Edge)
+- A CSV file with questions in the required format
 
-### Installation
+### CSV Format Requirements
 
-1. Download the `annotation-app.html` file to your computer
-2. No installation is needed - the app runs entirely in your browser
+The input CSV file should have the following columns:
+- `Question`: The original multiple-choice question
+- `Correct Answer`: The correct answer option
+- `Incorrect Answer 1`: First incorrect option
+- `Incorrect Answer 2`: Second incorrect option
+- `Incorrect Answer 3`: Third incorrect option
+- `Subdomain`: The subject area of the question
+- `Explanation`: Explanation of why the correct answer is correct
 
-## Usage
+### Using the Tool
 
-### 1. Loading the App
+1. **Upload Data**:
+   - Click the file upload area on the login screen
+   - Select a properly formatted CSV file
+   - Wait for the file to process (you'll see a success message when complete)
 
-- Open the `annotation-app.html` file in your web browser
-- You'll see the login screen with a file upload area and annotator selection dropdown
+2. **Login**:
+   - Select your name from the dropdown
+   - Click "Start Annotation"
 
-### 2. Uploading the Dataset
+3. **Annotate Questions**:
+   - Edit the question text to make it open-ended (remove "Choose the correct answer" and similar directives)
+   - Select difficulty rating (1-5, where 1 is easiest and 5 is hardest)
+   - Select confidence rating (1-5, where 1 is least confident and 5 is most confident)
+   - Add any notes in the notes field
+   - Use "Next" and "Previous" buttons to navigate between questions
 
-- Click on the file upload area and select the `gpqa_diamond.csv` file
-- The file will be processed locally in your browser
+4. **Save Your Work**:
+   - The tool auto-saves as you work
+   - Click the "Save" button to manually save
+   - All work is stored in your browser's local storage
 
-### 3. Selecting Your Identity
+5. **Download Annotations**:
+   - Click the "Download CSV" button to export your annotations as a CSV file
 
-- Choose your name from the dropdown menu (Ryan, Kartik, or Tom)
-- Each annotator is assigned a specific subset of questions to avoid overlap:
-  - Ryan: First third (questions 0-65)
-  - Kartik: Middle third (questions 66-131)
-  - Tom: Last third (questions 132-197)
+## Annotation States
 
-### 4. Annotation Interface
+Questions can be in one of three states:
+- **Not Annotated** (○): No changes have been made to the question
+- **Incomplete** (!): Some changes have been made, but either difficulty or confidence ratings are missing
+- **Annotated** (✓): Question has been edited and both ratings have been provided
 
-After logging in, you'll see the main annotation interface with:
+## Tips for Effective Annotation
 
-- **Progress bar**: Shows your completion percentage
-- **Question editor**: A text area to rewrite the multiple-choice question as open-ended
-- **Answer options**: Displays the correct answer (green) and incorrect answers (red)
-- **Difficulty rating**: Rate how difficult the annotation was (1=easiest, 5=hardest)
-- **Navigation controls**: Move between questions or jump to a specific question
-
-### 5. Annotation Process
-
-For each question:
-
-1. Read the original multiple-choice question and the answer options
-2. Edit the question to convert it to an open-ended format (e.g. remove the "Choose the correct answer" prompt and any multiple-choice framing)
-3. Select a difficulty rating (1-5)
-4. Click "Save" or simply navigate to the next/previous question (auto-save will trigger)
-
-### 6. Data Persistence
-
-- All annotations are automatically saved to your browser's localStorage
-- Auto-saving occurs:
-  - Every 30 seconds
-  - When navigating between questions
-  - When manually clicking the "Save" button
-- Your progress is preserved even if you close the browser and return later
-
-### 7. Exporting Annotations
-
-- Click the "Download CSV" button to export your annotations
-- The CSV includes:
-  - Original question index
-  - Your annotator name
-  - Question subdomain
-  - Original question
-  - Your annotated (open-ended) question
-  - Answer options
-  - Difficulty rating
-  - Timestamp of last save
-
-## Features
-
-- **User-specific assignments**: Each annotator sees only their assigned questions
-- **Progress tracking**: Visual indication of completion percentage
-- **Auto-save**: Prevents data loss
-- **CSV export**: Easy data extraction for analysis
-- **Offline operation**: Works without internet connection once loaded
+- **Making Questions Open-Ended**: Remove multiple-choice indicators and rephrase to ask for the answer directly
+- **Difficulty Rating**: Consider the depth of knowledge required, complexity of reasoning, and ambiguity
+- **Confidence Rating**: Reflect how confident you are in your difficulty assessment
+- **Notes**: Use for documenting special considerations, challenges, or observations about the question
 
 ## Troubleshooting
 
-### Data Not Loading Properly
-- Make sure you're using the correct CSV format
-- Check that the file has the expected columns: "Question", "Correct Answer", "Incorrect Answer 1", "Incorrect Answer 2", "Incorrect Answer 3", and "Subdomain"
+- **Data Not Loading**: Ensure your CSV file follows the required format
+- **Progress Not Saving**: Check that you haven't cleared your browser's local storage
+- **Can't Proceed to Next Question**: If you've modified the question, you must provide both difficulty and confidence ratings
 
-### Lost Progress
-- Ensure you're using the same browser and device
-- Browser localStorage can be cleared if you clear browsing data or use private/incognito mode
-- Download CSV backups regularly
+## Technical Information
 
-### Display Issues
-- Try a different modern browser
-- Ensure JavaScript is enabled
+This tool runs entirely in your browser and doesn't require a server. All data is processed locally, and annotations are stored in your browser's local storage. No data is sent to any external server.
 
-## Technical Notes
+---
 
-- The app uses browser localStorage which has a size limit (usually ~5MB)
-- No data is sent to any servers; everything is processed locally
-- The CSV parser uses the PapaParse library (included via CDN)
-
-## Data Privacy
-
-The application processes all data locally in your browser. No information is sent to any servers.
-
-## Support
-
-If you encounter issues or have questions about using this tool, please contact the project administrator.
+For questions or issues, please contact the dataset administrators.

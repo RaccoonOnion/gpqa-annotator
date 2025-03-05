@@ -1,0 +1,1233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GPQA Diamond Dataset Annotation Tool</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+            color: #333;
+        }
+        h1, h2 {
+            color: #2c3e50;
+        }
+        .container {
+            background-color: #f9f9f9;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .hidden {
+            display: none;
+        }
+        .login-container {
+            text-align: center;
+            margin: 50px auto;
+            max-width: 500px;
+        }
+        .login-form {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input, select, textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+        textarea {
+            min-height: 150px;
+            resize: vertical;
+        }
+        .answer-box {
+            margin-bottom: 15px;
+            padding: 10px;
+            border-radius: 4px;
+        }
+        .correct-answer {
+            border-left: 5px solid #27ae60;
+            background-color: #e8f5e9;
+        }
+        .incorrect-answer {
+            border-left: 5px solid #e74c3c;
+            background-color: #ffebee;
+        }
+        .explanation-container {
+            margin-top: 20px;
+            margin-bottom: 20px;
+        }
+        .explanation-toggle {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            color: #3498db;
+            font-weight: bold;
+        }
+        .explanation-toggle:hover {
+            text-decoration: underline;
+        }
+        .explanation-content {
+            background-color: #f1f8fe;
+            border: 1px solid #d1e6fa;
+            border-radius: 4px;
+            padding: 15px;
+            margin-top: 10px;
+            display: none;
+        }
+        .explanation-content.active {
+            display: block;
+        }
+        .button-container {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+        }
+        button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s;
+        }
+        .primary-btn {
+            background-color: #3498db;
+            color: white;
+        }
+        .primary-btn:hover {
+            background-color: #2980b9;
+        }
+        .secondary-btn {
+            background-color: #95a5a6;
+            color: white;
+        }
+        .secondary-btn:hover {
+            background-color: #7f8c8d;
+        }
+        .difficulty-rating {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        .difficulty-btn {
+            flex: 1;
+            text-align: center;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .difficulty-btn.selected {
+            background-color: #3498db;
+            color: white;
+            border-color: #3498db;
+        }
+        /* Confidence button styling */
+        .confidence-btn {
+            flex: 1;
+            text-align: center;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .confidence-btn.selected {
+            background-color: #9b59b6;
+            color: white;
+            border-color: #9b59b6;
+        }
+        .progress-container {
+            margin: 20px 0;
+        }
+        .progress-bar {
+            height: 20px;
+            background-color: #ecf0f1;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        .progress {
+            height: 100%;
+            background-color: #3498db;
+            transition: width 0.3s ease;
+        }
+        .subdomain-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        .subdomain-tag, .status-tag {
+            display: inline-block;
+            background-color: #34495e;
+            color: white;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 14px;
+            margin-right: 10px;
+        }
+        .status-tag.annotated {
+            background-color: #27ae60;
+        }
+        .status-tag.not-annotated {
+            background-color: #e74c3c;
+        }
+        .status-tag.incomplete {
+            background-color: #f39c12;
+        }
+        .missing-ratings-warning {
+            color: #e74c3c;
+            font-weight: bold;
+            margin: 10px 0;
+            padding: 8px;
+            border: 1px solid #e74c3c;
+            border-radius: 4px;
+            background-color: #fadbd8;
+            display: none;
+        }
+        #question-number-tag {
+            background-color: #3498db;
+        }
+        .annotator-info {
+            font-weight: bold;
+            color: #3498db;
+        }
+        .navigation-controls {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 10px;
+        }
+        #question-index {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        #index-input {
+            width: 60px;
+        }
+        #index-total {
+            color: #7f8c8d;
+        }
+        .save-status {
+            text-align: center;
+            margin-top: 10px;
+            font-weight: bold;
+        }
+        .success {
+            color: #27ae60;
+        }
+        .error {
+            color: #e74c3c;
+        }
+        .file-upload-area {
+            border: 2px dashed #3498db;
+            border-radius: 8px;
+            padding: 20px;
+            text-align: center;
+            margin-bottom: 20px;
+            transition: all 0.3s;
+        }
+        .file-upload-area:hover {
+            background-color: #f1f9fe;
+        }
+        .file-upload-message {
+            font-size: 18px;
+            margin-bottom: 15px;
+        }
+        .file-name {
+            font-weight: bold;
+            margin-top: 10px;
+            color: #2980b9;
+        }
+    </style>
+</head>
+<body>
+    <!-- Login Screen -->
+    <div id="login-screen" class="login-container">
+        <h1>GPQA Diamond Dataset Annotation Tool</h1>
+        
+        <div class="container">
+            <div class="file-upload-area">
+                <div class="file-upload-message">Upload GPQA Diamond Dataset CSV file</div>
+                <input type="file" id="csv-file" accept=".csv">
+                <div id="file-name" class="file-name"></div>
+            </div>
+            
+            <div class="login-form">
+                <div class="form-group">
+                    <label for="annotator-id">Select Your Name:</label>
+                    <select id="annotator-id">
+                        <option value="Ryan">Ryan</option>
+                        <option value="Kartik">Kartik</option>
+                        <option value="Tom">Tom</option>
+                    </select>
+                </div>
+                <button class="primary-btn" id="login-btn">Start Annotation</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Annotation Interface -->
+    <div id="annotation-interface" class="hidden">
+        <h1>GPQA Diamond Dataset Annotation</h1>
+        <div class="progress-container">
+            <div class="progress-details">
+                <span id="progress-text">Progress: 0/66 questions (0%)</span>
+            </div>
+            <div class="progress-bar">
+                <div id="progress" class="progress" style="width: 0%"></div>
+            </div>
+        </div>
+        
+        <div class="container">
+            <div class="subdomain-container">
+                <div>
+                    <span class="subdomain-tag" id="subdomain">Subdomain: Loading...</span>
+                    <span class="status-tag not-annotated" id="annotation-status">Not Annotated</span>
+                    <span class="status-tag" id="question-number-tag">Question: 1</span>
+                </div>
+                <span class="annotator-info">Annotator: <span id="annotator-name-display"></span></span>
+            </div>
+            
+            <div class="form-group">
+                <label for="question">Question: (Edit to make open-ended)</label>
+                <textarea id="question" placeholder="Loading question..."></textarea>
+            </div>
+            
+            <h3>Answer Options:</h3>
+            <div id="correct-answer" class="answer-box correct-answer">
+                <label>Correct Answer:</label>
+                <p id="correct-answer-text">Loading...</p>
+            </div>
+            
+            <div id="incorrect-answer-1" class="answer-box incorrect-answer">
+                <label>Incorrect Answer 1:</label>
+                <p id="incorrect-answer-1-text">Loading...</p>
+            </div>
+            
+            <div id="incorrect-answer-2" class="answer-box incorrect-answer">
+                <label>Incorrect Answer 2:</label>
+                <p id="incorrect-answer-2-text">Loading...</p>
+            </div>
+            
+            <div id="incorrect-answer-3" class="answer-box incorrect-answer">
+                <label>Incorrect Answer 3:</label>
+                <p id="incorrect-answer-3-text">Loading...</p>
+            </div>
+            
+            <div class="explanation-container">
+                <div class="explanation-toggle" id="explanation-toggle">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="6 9 12 15 18 9"></polyline>
+                    </svg>
+                    <span>Show Explanation</span>
+                </div>
+                <div class="explanation-content" id="explanation-content">
+                    <p id="explanation-text">Loading explanation...</p>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label>Difficulty (1 easiest, 5 hardest):</label>
+                <div class="difficulty-rating">
+                    <div class="difficulty-btn" data-value="1">1</div>
+                    <div class="difficulty-btn" data-value="2">2</div>
+                    <div class="difficulty-btn" data-value="3">3</div>
+                    <div class="difficulty-btn" data-value="4">4</div>
+                    <div class="difficulty-btn" data-value="5">5</div>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label>Confidence (1 least confident, 5 most confident):</label>
+                <div class="difficulty-rating confidence-rating">
+                    <div class="confidence-btn" data-value="1">1</div>
+                    <div class="confidence-btn" data-value="2">2</div>
+                    <div class="confidence-btn" data-value="3">3</div>
+                    <div class="confidence-btn" data-value="4">4</div>
+                    <div class="confidence-btn" data-value="5">5</div>
+                </div>
+            </div>
+            
+            <div id="missing-ratings-warning" class="missing-ratings-warning">
+                Please complete both difficulty and confidence ratings before proceeding.
+            </div>
+            
+            <div class="form-group">
+                <label for="annotation-notes">Notes:</label>
+                <textarea id="annotation-notes" placeholder="Enter your notes about this question here..."></textarea>
+            </div>
+            
+            <div class="navigation-controls">
+                <div id="question-index">
+                    <span>Question:</span>
+                    <select id="question-dropdown" style="min-width: 200px;">
+                        <option value="">Select a question...</option>
+                    </select>
+                    <button id="last-visited-btn" class="secondary-btn" style="margin-left: 15px;">Last Visited</button>
+                </div>
+            </div>
+            
+            <div class="button-container">
+                <button id="prev-btn" class="secondary-btn">Previous</button>
+                <button id="save-btn" class="primary-btn">Save</button>
+                <button id="next-btn" class="primary-btn">Next</button>
+                <button id="download-btn" class="secondary-btn">Download CSV</button>
+            </div>
+            
+            <div id="save-status" class="save-status"></div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
+    <script>
+        // Global variables
+        let allData = [];
+        let currentQuestionIndex = 0;
+        let lastVisitedIndexes = []; // Array to store last visited question indexes
+        let annotatorData = {
+            name: '',
+            id: '',
+            startIndex: 0,
+            endIndex: 0,
+            questionsCount: 0
+        };
+        let annotations = [];
+        let currentDifficulty = 0;
+        let currentConfidence = 0;
+        let csvFileName = '';
+
+        // Event listeners
+        document.addEventListener('DOMContentLoaded', () => {
+            // File input change
+            document.getElementById('csv-file').addEventListener('change', handleFileSelect);
+            
+            // Login button - Initially disabled until file is uploaded
+            const loginBtn = document.getElementById('login-btn');
+            loginBtn.disabled = true;
+            loginBtn.addEventListener('click', handleLogin);
+            
+            // Navigation buttons
+            document.getElementById('prev-btn').addEventListener('click', handlePrevious);
+            document.getElementById('next-btn').addEventListener('click', handleNext);
+            document.getElementById('save-btn').addEventListener('click', handleSave);
+            document.getElementById('last-visited-btn').addEventListener('click', handleLastVisited);
+            document.getElementById('download-btn').addEventListener('click', downloadCSV);
+            
+            // Question dropdown
+            document.getElementById('question-dropdown').addEventListener('change', handleQuestionChange);
+            
+            // Explanation toggle
+            document.getElementById('explanation-toggle').addEventListener('click', toggleExplanation);
+            
+            // Difficulty buttons
+            const difficultyButtons = document.querySelectorAll('.difficulty-btn');
+            difficultyButtons.forEach(button => {
+                button.addEventListener('click', () => handleDifficultySelect(button));
+            });
+            
+            // Confidence buttons
+            const confidenceButtons = document.querySelectorAll('.confidence-btn');
+            confidenceButtons.forEach(button => {
+                button.addEventListener('click', () => handleConfidenceSelect(button));
+            });
+            
+            // Set initial message
+            document.getElementById('file-name').innerHTML = "Please upload a CSV file to begin";
+        });
+        
+        // Function to check annotation status
+        function getAnnotationStatus(index) {
+            const annotation = annotations[index];
+            
+            if (!annotation.isAnnotated && !hasQuestionBeenModified(index)) {
+                return "not-annotated"; // Not annotated (no changes at all)
+            } else if (annotation.questionText && annotation.difficulty > 0 && annotation.confidence > 0) {
+                return "annotated"; // Fully annotated
+            } else {
+                return "incomplete"; // Incomplete annotation
+            }
+        }
+        
+        // Check if question text has been modified for a specific index
+        function hasQuestionBeenModified(index) {
+            index = index || currentQuestionIndex;
+            const dataIndex = annotatorData.startIndex + index;
+            
+            // Get original question from data
+            let originalQuestion = "";
+            if (allData[dataIndex]) {
+                originalQuestion = allData[dataIndex].Question.trim();
+            }
+            
+            const currentAnnotation = annotations[index];
+            
+            // Consider modified if user has entered any text or selected ratings
+            if (currentAnnotation.questionText && currentAnnotation.questionText !== originalQuestion) {
+                return true;
+            }
+            
+            if (currentAnnotation.difficulty > 0 || currentAnnotation.confidence > 0 || currentAnnotation.notes) {
+                return true;
+            }
+            
+            // For current question, also check the current state of the form
+            if (index === currentQuestionIndex) {
+                const currentQuestionText = document.getElementById('question').value.trim();
+                const currentNotes = document.getElementById('annotation-notes').value.trim();
+                
+                if (currentQuestionText !== originalQuestion || currentNotes) {
+                    return true;
+                }
+            }
+            
+            return false;
+        }
+
+        // Toggle explanation visibility
+        function toggleExplanation() {
+            const content = document.getElementById('explanation-content');
+            content.classList.toggle('active');
+            
+            const toggleText = document.querySelector('#explanation-toggle span');
+            if (content.classList.contains('active')) {
+                toggleText.textContent = 'Hide Explanation';
+            } else {
+                toggleText.textContent = 'Show Explanation';
+            }
+        }
+
+        // Handle file selection
+        function handleFileSelect(e) {
+            const file = e.target.files[0];
+            if (file) {
+                csvFileName = file.name;
+                document.getElementById('file-name').textContent = csvFileName;
+                readCSVFile(file);
+            }
+        }
+
+        // Read and parse CSV file
+        function readCSVFile(file) {
+            const reader = new FileReader();
+            
+            reader.onload = function(e) {
+                const csvText = e.target.result;
+                
+                // Parse CSV using PapaParse
+                Papa.parse(csvText, {
+                    header: true,
+                    dynamicTyping: true,
+                    skipEmptyLines: true,
+                    complete: function(results) {
+                        console.log(`Parsed ${results.data.length} rows from CSV`);
+                        
+                        // Transform the data to our expected format
+                        allData = results.data.map(row => ({
+                            Question: row.Question || "",
+                            "Correct Answer": row["Correct Answer"] || "",
+                            "Incorrect Answer 1": row["Incorrect Answer 1"] || "",
+                            "Incorrect Answer 2": row["Incorrect Answer 2"] || "",
+                            "Incorrect Answer 3": row["Incorrect Answer 3"] || "",
+                            "Subdomain": row.Subdomain || "",
+                            "Explanation": row.Explanation || ""
+                        }));
+                        
+                        console.log(`Successfully transformed ${allData.length} questions`);
+                        
+                        // Enable the login button and show success message
+                        document.getElementById('login-btn').disabled = false;
+                        document.getElementById('file-name').innerHTML = `<span style="color: green;">✓</span> ${file.name} (${allData.length} questions) - Ready to annotate!`;
+                    },
+                    error: function(error) {
+                        console.error('Error parsing CSV:', error);
+                        alert('Error parsing the CSV file. Please check the format.');
+                        document.getElementById('file-name').innerHTML = `<span style="color: red;">✗</span> Error parsing file. Please try another file.`;
+                    }
+                });
+            };
+            
+            reader.onerror = function() {
+                console.error('Error reading file');
+                alert('Error reading the file. Please try again.');
+                document.getElementById('file-name').innerHTML = `<span style="color: red;">✗</span> Error reading file. Please try again.`;
+            };
+            
+            reader.readAsText(file);
+            
+            // Disable login button until file is processed
+            document.getElementById('login-btn').disabled = true;
+            document.getElementById('file-name').innerHTML = `<span style="color: blue;">⟳</span> Loading ${file.name}...`;
+        }
+
+        // Load sample data for testing or fallback
+        function loadSampleData() {
+            console.log("Loading sample data...");
+            
+            allData = [
+                {
+                    Question: "What is the primary mechanism by which ACE inhibitors reduce blood pressure? Choose the correct answer.",
+                    "Correct Answer": "They block the conversion of angiotensin I to angiotensin II",
+                    "Incorrect Answer 1": "They block calcium channels in vascular smooth muscle",
+                    "Incorrect Answer 2": "They activate potassium channels in the heart",
+                    "Incorrect Answer 3": "They inhibit the reuptake of norepinephrine",
+                    "Subdomain": "Medicine",
+                    "Explanation": "ACE inhibitors work by inhibiting angiotensin-converting enzyme (ACE), which is responsible for converting angiotensin I to angiotensin II. Angiotensin II is a potent vasoconstrictor and also stimulates the release of aldosterone, which increases sodium and water retention. By blocking the conversion to angiotensin II, ACE inhibitors cause vasodilation and reduce sodium/water retention, thus lowering blood pressure."
+                },
+                {
+                    Question: "Which statement about the metabolism of ethanol in humans is correct? Choose the correct answer.",
+                    "Correct Answer": "Alcohol dehydrogenase converts ethanol to acetaldehyde",
+                    "Incorrect Answer 1": "Ethanol is primarily metabolized in the kidneys",
+                    "Incorrect Answer 2": "Ethanol metabolism decreases NADH/NAD+ ratio",
+                    "Incorrect Answer 3": "Methanol is a metabolite of ethanol",
+                    "Subdomain": "Biochemistry",
+                    "Explanation": "Alcohol dehydrogenase (ADH) is the main enzyme responsible for the first step in ethanol metabolism. It converts ethanol to acetaldehyde, which is then further metabolized to acetate by aldehyde dehydrogenase. This process primarily occurs in the liver, not the kidneys. The metabolism of ethanol increases (not decreases) the NADH/NAD+ ratio, which can lead to metabolic imbalances. Methanol is not a metabolite of ethanol; they are distinct alcohols with different metabolic pathways."
+                },
+                {
+                    Question: "Which of the following best describes the role of DNA polymerase in DNA replication? Choose the correct answer.",
+                    "Correct Answer": "It adds nucleotides to the 3' end of a growing DNA strand",
+                    "Incorrect Answer 1": "It adds nucleotides to the 5' end of a growing DNA strand",
+                    "Incorrect Answer 2": "It unwinds the DNA double helix",
+                    "Incorrect Answer 3": "It joins Okazaki fragments together",
+                    "Subdomain": "Molecular Biology",
+                    "Explanation": "DNA polymerase catalyzes the addition of nucleotides to the 3' end of a growing DNA strand during DNA replication. This is because DNA synthesis can only occur in the 5' to 3' direction. DNA polymerase cannot add nucleotides to the 5' end. The unwinding of the DNA double helix is performed by DNA helicase, not DNA polymerase. DNA ligase, not DNA polymerase, is responsible for joining Okazaki fragments together during lagging strand synthesis."
+                }
+            ];
+            
+            // Extend the sample data to meet the expected 198 questions
+            const originalLength = allData.length;
+            for (let i = 1; i <= (198 - originalLength); i++) {
+                const index = i % originalLength;
+                const question = {...allData[index]}; // Clone the object
+                
+                // Slightly modify the question to make it different
+                question.Question = question.Question + ` (Variant ${Math.ceil(i/originalLength)})`;
+                
+                allData.push(question);
+            }
+            
+            console.log(`Loaded ${allData.length} sample questions`);
+        }
+
+        // Handle login and dataset splitting
+        function handleLogin() {
+            const idSelect = document.getElementById('annotator-id');
+            const name = idSelect.value;
+            
+            if (!name) {
+                alert('Please select your name');
+                return;
+            }
+            
+            // Check if data is loaded
+            if (!allData || allData.length === 0) {
+                alert('Please upload a CSV file before proceeding');
+                return;
+            }
+            
+            // Save annotator information
+            annotatorData.name = name;
+            annotatorData.id = name;  // Use name as ID
+            
+            // Split dataset for the annotator - fixed division to prevent overlap
+            const totalQuestions = allData.length;
+            
+            if (name === "Ryan") {
+                // Ryan gets the first third
+                annotatorData.startIndex = 0;
+                annotatorData.endIndex = Math.floor(totalQuestions / 3) - 1;
+            } else if (name === "Kartik") {
+                // Kartik gets the middle third
+                annotatorData.startIndex = Math.floor(totalQuestions / 3);
+                annotatorData.endIndex = Math.floor(totalQuestions * 2 / 3) - 1;
+            } else {
+                // Tom gets the final third
+                annotatorData.startIndex = Math.floor(totalQuestions * 2 / 3);
+                annotatorData.endIndex = totalQuestions - 1;
+            }
+            
+            annotatorData.questionsCount = annotatorData.endIndex - annotatorData.startIndex + 1;
+            
+            console.log(`Assigned questions ${annotatorData.startIndex} to ${annotatorData.endIndex} to ${name}`);
+            
+            // Initialize annotations array with empty values
+            initializeAnnotations();
+            
+            // Hide login and show annotation interface
+            document.getElementById('login-screen').classList.add('hidden');
+            document.getElementById('annotation-interface').classList.remove('hidden');
+            
+            // Update the annotator name display
+            document.getElementById('annotator-name-display').textContent = name;
+            
+            // Populate question dropdown
+            populateQuestionDropdown();
+            
+            // Load the first question
+            loadQuestion(0);
+            
+            // Load any previously saved annotations
+            loadSavedAnnotations();
+            
+            // Try to load last visited question from localStorage
+            loadLastVisitedQuestion();
+            
+            // Setup auto-save
+            setupAutoSave();
+            
+            // Setup auto-save interval (save every 30 seconds)
+            setInterval(function() { 
+                saveAnnotation(false); 
+            }, 30000);
+        }
+
+        // Initialize annotations array
+        function initializeAnnotations() {
+            annotations = [];
+            
+            for (let i = annotatorData.startIndex; i <= annotatorData.endIndex; i++) {
+                annotations.push({
+                    originalIndex: i,
+                    questionText: "",
+                    difficulty: 0,
+                    confidence: 0,
+                    notes: "",
+                    isAnnotated: false,
+                    lastSaved: null
+                });
+            }
+            
+            // Populate question dropdown after initializing annotations
+            populateQuestionDropdown();
+        }
+        
+        // Populate the question dropdown
+        function populateQuestionDropdown() {
+            const dropdown = document.getElementById('question-dropdown');
+            
+            // Clear existing options except the first placeholder
+            while (dropdown.options.length > 1) {
+                dropdown.remove(1);
+            }
+            
+            // Add options for each question
+            for (let i = 0; i < annotatorData.questionsCount; i++) {
+                const option = document.createElement('option');
+                const questionNum = i + 1;
+                const status = getAnnotationStatus(i);
+                
+                let statusSymbol = "○"; // Not annotated
+                let statusText = "Not Annotated";
+                
+                if (status === "annotated") {
+                    statusSymbol = "✓"; // Annotated
+                    statusText = "Annotated";
+                } else if (status === "incomplete") {
+                    statusSymbol = "!"; // Incomplete
+                    statusText = "Incomplete";
+                }
+                
+                option.value = i;
+                option.textContent = `Q${questionNum}: ${statusSymbol} ${statusText}`;
+                
+                if (i === currentQuestionIndex) {
+                    option.selected = true;
+                }
+                
+                dropdown.appendChild(option);
+            }
+        }
+
+        // Auto-save whenever question or notes are changed
+        function setupAutoSave() {
+            const questionTextarea = document.getElementById('question');
+            const notesTextarea = document.getElementById('annotation-notes');
+            
+            // Add event listeners for input changes
+            questionTextarea.addEventListener('input', function() {
+                autoSaveWithDelay();
+                checkRatings();
+            });
+            
+            notesTextarea.addEventListener('input', function() {
+                autoSaveWithDelay();
+                checkRatings();
+            });
+            
+            // Set up a delay to avoid too many saves
+            let autoSaveTimeout;
+            function autoSaveWithDelay() {
+                clearTimeout(autoSaveTimeout);
+                autoSaveTimeout = setTimeout(function() {
+                    saveAnnotation(false); // Don't show status message for auto-save
+                }, 1000); // Wait 1 second after typing stops
+            }
+        }
+        
+        // Check ratings when needed and show warning
+        function checkRatings() {
+            const questionModified = hasQuestionBeenModified(currentQuestionIndex);
+            const missingRatingsWarning = document.getElementById('missing-ratings-warning');
+            
+            if (questionModified && (currentDifficulty === 0 || currentConfidence === 0)) {
+                missingRatingsWarning.style.display = 'block';
+            } else {
+                missingRatingsWarning.style.display = 'none';
+            }
+        }
+
+        // Handle dropdown selection change
+        function handleQuestionChange(e) {
+            const index = parseInt(e.target.value);
+            if (!isNaN(index)) {
+                // Check for incomplete ratings if modified
+                if (hasQuestionBeenModified(currentQuestionIndex) && 
+                    (currentDifficulty === 0 || currentConfidence === 0)) {
+                    
+                    document.getElementById('missing-ratings-warning').style.display = 'block';
+                    showSaveStatus('Please complete both difficulty and confidence ratings before proceeding', false);
+                    
+                    // Reset dropdown selection
+                    e.target.value = currentQuestionIndex;
+                    return;
+                }
+                
+                // Always save before changing questions
+                saveAnnotation(false);
+                
+                loadQuestion(index);
+            }
+        }
+
+        // Load a question by its index relative to the annotator's assigned questions
+        function loadQuestion(index) {
+            if (index < 0 || index >= annotatorData.questionsCount) {
+                console.error('Question index out of bounds');
+                return;
+            }
+            
+            // Add current index to lastVisitedIndexes if it's not the same as the new index
+            if (currentQuestionIndex !== index && currentQuestionIndex >= 0) {
+                // Add to last visited array (keep only last 10)
+                if (!lastVisitedIndexes.includes(currentQuestionIndex)) {
+                    lastVisitedIndexes.unshift(currentQuestionIndex);
+                    if (lastVisitedIndexes.length > 10) {
+                        lastVisitedIndexes.pop();
+                    }
+                    // Save last visited indexes to localStorage
+                    localStorage.setItem(`gpqa_last_visited_${annotatorData.id}`, JSON.stringify(lastVisitedIndexes));
+                }
+            }
+            
+            currentQuestionIndex = index;
+            const dataIndex = annotatorData.startIndex + index;
+            
+            // Get data for this question
+            const questionData = allData[dataIndex] || {
+                Question: `Sample question ${dataIndex + 1}? Choose the correct answer.`,
+                "Correct Answer": `Correct answer for question ${dataIndex + 1}`,
+                "Incorrect Answer 1": `Incorrect answer 1 for question ${dataIndex + 1}`,
+                "Incorrect Answer 2": `Incorrect answer 2 for question ${dataIndex + 1}`,
+                "Incorrect Answer 3": `Incorrect answer 3 for question ${dataIndex + 1}`,
+                "Subdomain": `Sample subdomain ${Math.ceil((dataIndex + 1)/20)}`,
+                "Explanation": `Sample explanation for question ${dataIndex + 1}.`
+            };
+            
+            // Populate the form
+            document.getElementById('question').value = annotations[index].isAnnotated || annotations[index].questionText ? 
+                annotations[index].questionText : questionData.Question;
+            
+            document.getElementById('correct-answer-text').textContent = questionData["Correct Answer"];
+            document.getElementById('incorrect-answer-1-text').textContent = questionData["Incorrect Answer 1"];
+            document.getElementById('incorrect-answer-2-text').textContent = questionData["Incorrect Answer 2"];
+            document.getElementById('incorrect-answer-3-text').textContent = questionData["Incorrect Answer 3"];
+            document.getElementById('subdomain').textContent = `Subdomain: ${questionData.Subdomain}`;
+            
+            // Set the explanation text
+            const explanationText = questionData.Explanation || "No explanation available.";
+            document.getElementById('explanation-text').textContent = explanationText;
+            
+            // Reset explanation visibility
+            document.getElementById('explanation-content').classList.remove('active');
+            document.querySelector('#explanation-toggle span').textContent = 'Show Explanation';
+            
+            // Set the difficulty if it was previously annotated
+            setDifficulty(annotations[index].difficulty);
+            
+            // Set the confidence if it was previously annotated
+            setConfidence(annotations[index].confidence);
+            
+            // Set the notes if they exist
+            document.getElementById('annotation-notes').value = annotations[index].notes || "";
+            
+            // Update question dropdown
+            const dropdown = document.getElementById('question-dropdown');
+            dropdown.value = index;
+            
+            // Update question number tag
+            document.getElementById('question-number-tag').textContent = `Question: ${index + 1}`;
+            
+            // Update annotation status
+            updateAnnotationStatus();
+            
+            // Update progress
+            updateProgress();
+            
+            // Check if we need to show warnings
+            checkRatings();
+        }
+
+        // Handle difficulty selection
+        function handleDifficultySelect(button) {
+            const value = parseInt(button.getAttribute('data-value'));
+            setDifficulty(value);
+            saveAnnotation(false); // Auto-save without message
+            checkRatings(); // Update warning message
+        }
+        
+        // Handle confidence selection
+        function handleConfidenceSelect(button) {
+            const value = parseInt(button.getAttribute('data-value'));
+            setConfidence(value);
+            saveAnnotation(false); // Auto-save without message
+            checkRatings(); // Update warning message
+        }
+
+        // Set difficulty UI
+        function setDifficulty(value) {
+            currentDifficulty = value;
+            
+            // Clear selection from all buttons
+            document.querySelectorAll('.difficulty-btn').forEach(btn => {
+                btn.classList.remove('selected');
+            });
+            
+            // Set selected button
+            if (value > 0) {
+                document.querySelector(`.difficulty-btn[data-value="${value}"]`).classList.add('selected');
+            }
+        }
+        
+        // Set confidence UI
+        function setConfidence(value) {
+            currentConfidence = value;
+            
+            // Clear selection from all buttons
+            document.querySelectorAll('.confidence-btn').forEach(btn => {
+                btn.classList.remove('selected');
+            });
+            
+            // Set selected button
+            if (value > 0) {
+                document.querySelector(`.confidence-btn[data-value="${value}"]`).classList.add('selected');
+            }
+        }
+
+        // Save annotation with option to show status message
+        function saveAnnotation(showStatus = true) {
+            const questionText = document.getElementById('question').value.trim();
+            const notes = document.getElementById('annotation-notes').value.trim();
+            
+            if (!questionText) {
+                if (showStatus) {
+                    showSaveStatus('Please enter an open-ended question', false);
+                }
+                return false;
+            }
+            
+            // Save what we have, even if incomplete
+            annotations[currentQuestionIndex].questionText = questionText;
+            annotations[currentQuestionIndex].difficulty = currentDifficulty;
+            annotations[currentQuestionIndex].confidence = currentConfidence;
+            annotations[currentQuestionIndex].notes = notes;
+            
+            // Mark as fully annotated only if all criteria are met
+            if (currentDifficulty > 0 && currentConfidence > 0) {
+                annotations[currentQuestionIndex].isAnnotated = true;
+            }
+            
+            annotations[currentQuestionIndex].lastSaved = new Date().toISOString();
+            
+            // Save to localStorage
+            saveAnnotations();
+            
+            // Show success message if requested
+            if (showStatus) {
+                if (currentDifficulty > 0 && currentConfidence > 0) {
+                    showSaveStatus('Annotation saved successfully!', true);
+                } else {
+                    showSaveStatus('Saved as incomplete. Please add difficulty and confidence ratings.', false);
+                }
+            }
+            
+            // Update annotation status
+            updateAnnotationStatus();
+            
+            // Update the dropdown to reflect the changed status
+            populateQuestionDropdown();
+            
+            // Update progress
+            updateProgress();
+            
+            return true;
+        }
+        
+        // Handle save button click
+        function handleSave() {
+            return saveAnnotation(true); // Show status message
+        }
+
+        // Handle next question
+        function handleNext() {
+            // Check for incomplete ratings if modified
+            if (hasQuestionBeenModified(currentQuestionIndex) && 
+                (currentDifficulty === 0 || currentConfidence === 0)) {
+                
+                document.getElementById('missing-ratings-warning').style.display = 'block';
+                showSaveStatus('Please complete both difficulty and confidence ratings before proceeding', false);
+                return;
+            }
+            
+            // Always save before moving on
+            saveAnnotation(false);
+            
+            if (currentQuestionIndex < annotatorData.questionsCount - 1) {
+                loadQuestion(currentQuestionIndex + 1);
+            }
+        }
+
+        // Handle previous question
+        function handlePrevious() {
+            // Check for incomplete ratings if modified
+            if (hasQuestionBeenModified(currentQuestionIndex) && 
+                (currentDifficulty === 0 || currentConfidence === 0)) {
+                
+                document.getElementById('missing-ratings-warning').style.display = 'block';
+                showSaveStatus('Please complete both difficulty and confidence ratings before proceeding', false);
+                return;
+            }
+            
+            // Always save before moving on
+            saveAnnotation(false);
+            
+            if (currentQuestionIndex > 0) {
+                loadQuestion(currentQuestionIndex - 1);
+            }
+        }
+
+        // Handle last visited button click
+        function handleLastVisited() {
+            if (lastVisitedIndexes.length > 0) {
+                // Check for incomplete ratings if modified
+                if (hasQuestionBeenModified(currentQuestionIndex) && 
+                    (currentDifficulty === 0 || currentConfidence === 0)) {
+                    
+                    document.getElementById('missing-ratings-warning').style.display = 'block';
+                    showSaveStatus('Please complete both difficulty and confidence ratings before proceeding', false);
+                    return;
+                }
+                
+                // Always save before changing questions
+                saveAnnotation(false);
+                
+                // Get the most recently visited index
+                const lastIndex = lastVisitedIndexes.shift();
+                
+                // Update localStorage
+                localStorage.setItem(`gpqa_last_visited_${annotatorData.id}`, JSON.stringify(lastVisitedIndexes));
+                
+                // Load the last visited question
+                loadQuestion(lastIndex);
+            } else {
+                showSaveStatus('No previously visited questions found', false);
+            }
+        }
+
+        // Update annotation status
+        function updateAnnotationStatus() {
+            const statusElement = document.getElementById('annotation-status');
+            const status = getAnnotationStatus(currentQuestionIndex);
+            
+            if (status === "annotated") {
+                statusElement.textContent = 'Annotated';
+                statusElement.className = 'status-tag annotated';
+            } else if (status === "incomplete") {
+                statusElement.textContent = 'Incomplete';
+                statusElement.className = 'status-tag incomplete';
+            } else {
+                statusElement.textContent = 'Not Annotated';
+                statusElement.className = 'status-tag not-annotated';
+            }
+        }
+
+        // Update progress indicators
+        function updateProgress() {
+            // Count fully completed annotations (with both ratings)
+            const completedCount = annotations.filter(a => 
+                a.isAnnotated && a.difficulty > 0 && a.confidence > 0
+            ).length;
+            
+            const progressPercent = (completedCount / annotatorData.questionsCount) * 100;
+            
+            document.getElementById('progress').style.width = `${progressPercent}%`;
+            document.getElementById('progress-text').textContent = 
+                `Progress: ${completedCount}/${annotatorData.questionsCount} questions (${Math.round(progressPercent)}%)`;
+        }
+
+        // Save annotations to localStorage
+        function saveAnnotations() {
+            const annotationData = {
+                annotator: annotatorData.name,
+                id: annotatorData.id,
+                lastUpdated: new Date().toISOString(),
+                annotations: annotations
+            };
+            
+            localStorage.setItem(`gpqa_annotations_${annotatorData.id}`, JSON.stringify(annotationData));
+            
+            // Also save last visited
+            localStorage.setItem(`gpqa_last_visited_${annotatorData.id}`, JSON.stringify(lastVisitedIndexes));
+            
+            // Also prepare a CSV for download
+            generateCSV();
+        }
+
+        // Load saved annotations from localStorage
+        function loadSavedAnnotations() {
+            const saved = localStorage.getItem(`gpqa_annotations_${annotatorData.id}`);
+            
+            if (saved) {
+                try {
+                    const savedData = JSON.parse(saved);
+                    
+                    // Only load if it's the same annotator
+                    if (savedData.annotator === annotatorData.name && savedData.id === annotatorData.id) {
+                        annotations = savedData.annotations;
+                        updateProgress();
+                        updateAnnotationStatus();
+                        populateQuestionDropdown();
+                    }
+                } catch (error) {
+                    console.error('Error loading saved annotations:', error);
+                }
+            }
+        }
+        
+        // Load last visited question from localStorage
+        function loadLastVisitedQuestion() {
+            const savedLastVisited = localStorage.getItem(`gpqa_last_visited_${annotatorData.id}`);
+            
+            if (savedLastVisited) {
+                try {
+                    lastVisitedIndexes = JSON.parse(savedLastVisited);
+                    
+                    // Go to the most recently visited question if available
+                    if (lastVisitedIndexes.length > 0) {
+                        loadQuestion(lastVisitedIndexes[0]);
+                    }
+                } catch (error) {
+                    console.error('Error loading last visited questions:', error);
+                }
+            }
+        }
+
+        // Generate CSV from annotations
+        function generateCSV() {
+            const rows = [
+                // Header row
+                ['Original Index', 'Annotator', 'Subdomain', 'Original Question', 'Annotated Question', 'Correct Answer', 'Incorrect Answer 1', 'Incorrect Answer 2', 'Incorrect Answer 3', 'Explanation', 'Difficulty', 'Confidence', 'Notes', 'Last Saved']
+            ];
+            
+            // Add data rows
+            annotations.forEach((annotation, index) => {
+                if (annotation.isAnnotated) {
+                    const dataIndex = annotatorData.startIndex + index;
+                    const questionData = allData[dataIndex] || {
+                        Question: `Sample question ${dataIndex + 1}`,
+                        "Correct Answer": `Correct answer for question ${dataIndex + 1}`,
+                        "Incorrect Answer 1": `Incorrect answer 1 for question ${dataIndex + 1}`,
+                        "Incorrect Answer 2": `Incorrect answer 2 for question ${dataIndex + 1}`,
+                        "Incorrect Answer 3": `Incorrect answer 3 for question ${dataIndex + 1}`,
+                        "Subdomain": `Sample subdomain ${Math.ceil((dataIndex + 1)/20)}`,
+                        "Explanation": `Sample explanation for question ${dataIndex + 1}.`
+                    };
+                    
+                    rows.push([
+                        dataIndex,
+                        annotatorData.name,
+                        questionData.Subdomain,
+                        questionData.Question,
+                        annotation.questionText,
+                        questionData["Correct Answer"],
+                        questionData["Incorrect Answer 1"],
+                        questionData["Incorrect Answer 2"],
+                        questionData["Incorrect Answer 3"],
+                        questionData["Explanation"] || "No explanation available.",
+                        annotation.difficulty,
+                        annotation.confidence,
+                        annotation.notes,
+                        annotation.lastSaved || new Date().toISOString()
+                    ]);
+                }
+            });
+            
+            // Generate CSV content
+            const csv = Papa.unparse(rows);
+            
+            // Create a download link
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            
+            // Create or update download link
+            let downloadLink = document.getElementById('download-link');
+            if (!downloadLink) {
+                downloadLink = document.createElement('a');
+                downloadLink.href = url;
+                downloadLink.id = 'download-link';
+                downloadLink.style.display = 'none';
+                document.body.appendChild(downloadLink);
+            } else {
+                downloadLink.href = url;
+            }
+            
+            // Set download filename
+            const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+            downloadLink.setAttribute('download', `gpqa_annotations_${annotatorData.id}_${timestamp}.csv`);
+        }
+
+        // Function to download CSV
+        function downloadCSV() {
+            generateCSV();
+            document.getElementById('download-link').click();
+        }
+
+        // Show save status message
+        function showSaveStatus(message, isSuccess) {
+            const statusElement = document.getElementById('save-status');
+            statusElement.textContent = message;
+            statusElement.className = isSuccess ? 'save-status success' : 'save-status error';
+            
+            // Clear message after a few seconds
+            setTimeout(() => {
+                statusElement.textContent = '';
+                statusElement.className = 'save-status';
+            }, 3000);
+        }
+    </script>
+</body>
+</html>
