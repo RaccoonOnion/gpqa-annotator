@@ -152,6 +152,19 @@
             color: white;
             border-color: #9b59b6;
         }
+        .correctness-btn {
+            flex: 1;
+            text-align: center;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .correctness-btn.selected {
+            background-color: #2ecc71;
+            color: white;
+            border-color: #2ecc71;
+        }
         .progress-container {
             margin: 20px 0;
         }
@@ -254,6 +267,19 @@
             margin-top: 10px;
             color: #2980b9;
         }
+        .model-tab {
+            padding: 6px 12px;
+            border: 1px solid #ccc;
+            background-color: white;
+            cursor: pointer;
+            border-radius: 4px;
+        }
+        .model-tab.selected {
+            background-color: #3498db;
+            color: white;
+            border-color: #3498db;
+        }
+
     </style>
 </head>
 <body>
@@ -304,31 +330,62 @@
                 <span class="annotator-info">Annotator: <span id="annotator-name-display"></span></span>
             </div>
             
-            <div class="form-group">
+            <!-- <div class="form-group">
                 <label for="question">Question: (Edit to make open-ended)</label>
                 <textarea id="question" placeholder="Loading question..."></textarea>
+            </div> -->
+            <div class="form-group">
+                <!-- Collapsed original question view -->
+                <div class="explanation-toggle" id="original-question-toggle">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="6 9 12 15 18 9"></polyline>
+                    </svg>
+                    <span>Show Original Question</span>
+                </div>
+                <div class="explanation-content" id="original-question-content">
+                    <label>Original Question:</label>
+                    <textarea id="original-question" readonly style="background-color:#eee;"></textarea>
+                </div>
+            
+                <!-- Visible annotated question view -->
+                <label for="question">Annotated Question: (Edit to make open-ended)</label>
+                <textarea id="question" placeholder="Loading annotated question..."></textarea>
             </div>
             
-            <h3>Answer Options:</h3>
-            <div id="correct-answer" class="answer-box correct-answer">
-                <label>Correct Answer:</label>
-                <p id="correct-answer-text">Loading...</p>
-            </div>
             
-            <div id="incorrect-answer-1" class="answer-box incorrect-answer">
-                <label>Incorrect Answer 1:</label>
-                <p id="incorrect-answer-1-text">Loading...</p>
-            </div>
             
-            <div id="incorrect-answer-2" class="answer-box incorrect-answer">
-                <label>Incorrect Answer 2:</label>
-                <p id="incorrect-answer-2-text">Loading...</p>
+            <!-- Collapsible Answer Options -->
+            <div class="form-group">
+                <div class="explanation-toggle" id="answer-options-toggle">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="6 9 12 15 18 9"></polyline>
+                    </svg>
+                    <span>Show Answer Options</span>
+                </div>
+                <div class="explanation-content" id="answer-options-content">
+                    <h3>Answer Options:</h3>
+                    <div id="correct-answer" class="answer-box correct-answer">
+                        <label>Correct Answer:</label>
+                        <p id="correct-answer-text">Loading...</p>
+                    </div>
+
+                    <div id="incorrect-answer-1" class="answer-box incorrect-answer">
+                        <label>Incorrect Answer 1:</label>
+                        <p id="incorrect-answer-1-text">Loading...</p>
+                    </div>
+
+                    <div id="incorrect-answer-2" class="answer-box incorrect-answer">
+                        <label>Incorrect Answer 2:</label>
+                        <p id="incorrect-answer-2-text">Loading...</p>
+                    </div>
+
+                    <div id="incorrect-answer-3" class="answer-box incorrect-answer">
+                        <label>Incorrect Answer 3:</label>
+                        <p id="incorrect-answer-3-text">Loading...</p>
+                    </div>
+                </div>
             </div>
-            
-            <div id="incorrect-answer-3" class="answer-box incorrect-answer">
-                <label>Incorrect Answer 3:</label>
-                <p id="incorrect-answer-3-text">Loading...</p>
-            </div>
+
             
             <div class="explanation-container">
                 <div class="explanation-toggle" id="explanation-toggle">
@@ -341,7 +398,33 @@
                     <p id="explanation-text">Loading explanation...</p>
                 </div>
             </div>
-            
+
+            <!-- Model Answers Tabs Section -->
+            <div class="form-group">
+                <h3>Model Answers</h3>
+                <div id="model-tabs" style="display: flex; gap: 10px; margin-bottom: 10px;">
+                    <button class="model-tab" data-model="gemma-2-9b-it">gemma-2-9b-it</button>
+                    <button class="model-tab" data-model="Llama-3_1-8B-Instruct">Llama-3_1-8B-Instruct</button>
+                    <button class="model-tab" data-model="Qwen2_5-7B-Instruct">Qwen2_5-7B-Instruct</button>
+                </div>
+                <div id="model-confidence" style="margin-bottom: 6px; font-weight: bold; color: #555;">
+                    Confidence: <span id="model-confidence-value">Loading...</span>
+                </div>
+                
+                <textarea id="model-answer-content" readonly style="width: 100%; min-height: 120px; background-color: #f5f5f5; border: 1px solid #ccc; padding: 10px;"></textarea>
+            </div>
+
+            <div class="explanation-toggle" id="raw-output-toggle">
+            <!-- <div class="explanation-toggle" id="raw-output-toggle" style="margin-top: 4px;"> -->
+
+                <svg ...>...</svg>
+                <span>Show Raw Model Answer</span>
+            </div>
+            <div class="explanation-content" id="raw-output-content">
+                <pre id="raw-model-output" style="white-space: pre-wrap;"></pre>
+            </div>
+
+
             <div class="form-group">
                 <label>Difficulty (1 easiest, 5 hardest):</label>
                 <div class="difficulty-rating">
@@ -363,15 +446,41 @@
                     <div class="confidence-btn" data-value="5">5</div>
                 </div>
             </div>
+
+            <div class="form-group">
+                <label>Correct?</label>
+                <div class="difficulty-rating" id="correctness-response-buttons">
+                    <div class="correctness-btn" data-value="Yes">Yes</div>
+                    <div class="correctness-btn" data-value="No">No</div>
+                    <div class="correctness-btn" data-value="Unsure">Unsure</div>
+                </div>
+            </div>
+            
             
             <div id="missing-ratings-warning" class="missing-ratings-warning">
                 Please complete both difficulty and confidence ratings before proceeding.
             </div>
             
-            <div class="form-group">
+            <!-- <div class="form-group">
                 <label for="annotation-notes">Notes:</label>
                 <textarea id="annotation-notes" placeholder="Enter your notes about this question here..."></textarea>
+            </div> -->
+            <!-- Collapsible Notes Section -->
+            <div class="form-group">
+                <div class="explanation-toggle" id="notes-toggle">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="6 9 12 15 18 9"></polyline>
+                    </svg>
+                    <span>Show Notes</span>
+                </div>
+                <div class="explanation-content" id="notes-content">
+                    <label for="annotation-notes">Notes:</label>
+                    <textarea id="annotation-notes" placeholder="Enter your notes about this question here..."></textarea>
+                </div>
             </div>
+
+
+
             
             <div class="navigation-controls">
                 <div id="question-index">
@@ -410,6 +519,7 @@
         let annotations = [];
         let currentDifficulty = 0;
         let currentConfidence = 0;
+        let currentCorrectnessResponse = "";
         let csvFileName = '';
 
         // Event listeners
@@ -435,12 +545,105 @@
             // Explanation toggle
             document.getElementById('explanation-toggle').addEventListener('click', toggleExplanation);
             
+            // Toggle Original Question
+            document.getElementById('original-question-toggle').addEventListener('click', function () {
+                const content = document.getElementById('original-question-content');
+                content.classList.toggle('active');
+                const toggleText = document.querySelector('#original-question-toggle span');
+                toggleText.textContent = content.classList.contains('active') ? 'Hide Original Question' : 'Show Original Question';
+            });
+
+            // Toggle Answer Options
+            document.getElementById('answer-options-toggle').addEventListener('click', function () {
+                const content = document.getElementById('answer-options-content');
+                content.classList.toggle('active');
+                const toggleText = document.querySelector('#answer-options-toggle span');
+                toggleText.textContent = content.classList.contains('active') ? 'Hide Answer Options' : 'Show Answer Options';
+            });
+
+            // Toggle Notes Section
+            document.getElementById('notes-toggle').addEventListener('click', function () {
+                const content = document.getElementById('notes-content');
+                content.classList.toggle('active');
+                const toggleText = document.querySelector('#notes-toggle span');
+                toggleText.textContent = content.classList.contains('active') ? 'Hide Notes' : 'Show Notes';
+            });
+
+            // Toggle Raw Output section
+            document.getElementById('raw-output-toggle').addEventListener('click', () => {
+                const content = document.getElementById('raw-output-content');
+                content.classList.toggle('active');
+                const toggleText = document.querySelector('#raw-output-toggle span');
+                toggleText.textContent = content.classList.contains('active') ? 'Hide Raw Model Answer' : 'Show Raw Model Answer';
+            });
+
+            // Model Answers logic
+            const modelTabs = document.querySelectorAll('.model-tab');
+            const modelAnswerBox = document.getElementById('model-answer-content');
+            let currentModelTab = 'gemma-2-9b-it';
+
+            modelTabs.forEach(tab => {
+                tab.addEventListener('click', () => {
+                    currentModelTab = tab.dataset.model;
+                    renderModelAnswer();
+
+                    // UI state
+                    modelTabs.forEach(t => t.classList.remove('selected'));
+                    tab.classList.add('selected');
+                });
+            });
+
+            function renderModelAnswer() {
+                const dataIndex = annotatorData.startIndex + currentQuestionIndex;
+                const answerKey = `answer_${currentModelTab}`;
+                const rawKey = `raw_output_${currentModelTab}`;
+                const confKey = `confidence_${currentModelTab}`;
+
+                const modelAnswer = allData[dataIndex]?.[answerKey] || "No answer available.";
+                const rawOutput = allData[dataIndex]?.[rawKey] || "No raw output available.";
+                const confidence = allData[dataIndex]?.[confKey] || "N/A";
+
+                modelAnswerBox.value = modelAnswer;
+                document.getElementById('raw-model-output').textContent = rawOutput;
+                // 🔽 Confidence display with color
+                const confidenceSpan = document.getElementById('model-confidence-value');
+                confidenceSpan.textContent = confidence;
+
+                // 🔽 Set color based on confidence level
+                if (confidence.toLowerCase().includes("high")) {
+                    confidenceSpan.style.color = "#27ae60"; // green
+                } else if (confidence.toLowerCase().includes("low")) {
+                    confidenceSpan.style.color = "#e74c3c"; // red
+                } else {
+                    confidenceSpan.style.color = "#f39c12"; // orange/yellow for medium/other
+                }
+            }
+
+
+
             // Difficulty buttons
             const difficultyButtons = document.querySelectorAll('.difficulty-btn');
             difficultyButtons.forEach(button => {
                 button.addEventListener('click', () => handleDifficultySelect(button));
             });
-            
+
+            // Correctness buttons (Yes / No / Unsure)
+            const correctnessButtons = document.querySelectorAll('.correctness-btn');
+            correctnessButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    currentCorrectnessResponse = button.getAttribute('data-value');
+
+                    // Highlight selected button
+                    correctnessButtons.forEach(btn => btn.classList.remove('selected'));
+                    button.classList.add('selected');
+
+                    // Auto-save selection
+                    saveAnnotation(false);
+                    checkRatings();  // reuse existing logic to warn if incomplete
+                });
+            });
+
+
             // Confidence buttons
             const confidenceButtons = document.querySelectorAll('.confidence-btn');
             confidenceButtons.forEach(button => {
@@ -453,16 +656,17 @@
         
         // Function to check annotation status
         function getAnnotationStatus(index) {
-            const annotation = annotations[index];
-            
-            if (!annotation.isAnnotated && !hasQuestionBeenModified(index)) {
-                return "not-annotated"; // Not annotated (no changes at all)
-            } else if (annotation.questionText && annotation.difficulty > 0 && annotation.confidence > 0) {
-                return "annotated"; // Fully annotated
+            const dataIndex = annotatorData.startIndex + index;
+            const csvDifficulty = parseInt(allData[dataIndex]?.Difficulty || 0);
+
+            if (csvDifficulty === 5) {
+                return "not-annotated";
             } else {
-                return "incomplete"; // Incomplete annotation
+                return "annotated";
             }
         }
+
+
         
         // Check if question text has been modified for a specific index
         function hasQuestionBeenModified(index) {
@@ -539,14 +743,31 @@
                         
                         // Transform the data to our expected format
                         allData = results.data.map(row => ({
-                            Question: row.Question || "",
+                            Question: row["Original Question"] || row.Question || "",
+                            "Annotated Question": row["Annotated Question"] || "",
                             "Correct Answer": row["Correct Answer"] || "",
                             "Incorrect Answer 1": row["Incorrect Answer 1"] || "",
                             "Incorrect Answer 2": row["Incorrect Answer 2"] || "",
                             "Incorrect Answer 3": row["Incorrect Answer 3"] || "",
                             "Subdomain": row.Subdomain || "",
-                            "Explanation": row.Explanation || ""
+                            "Explanation": row.Explanation || "",
+                            "Difficulty": row.Difficulty || 0,
+                            "Confidence": row.Confidence || 0,
+
+                            // ✅ Add these:
+                            "answer_gemma-2-9b-it": row["answer_gemma-2-9b-it"] || "",
+                            "raw_output_gemma-2-9b-it": row["raw_output_gemma-2-9b-it"] || "",
+                            "confidence_gemma-2-9b-it": row["confidence_gemma-2-9b-it"] || "",
+
+                            "answer_Llama-3_1-8B-Instruct": row["answer_Llama-3_1-8B-Instruct"] || "",
+                            "raw_output_Llama-3_1-8B-Instruct": row["raw_output_Llama-3_1-8B-Instruct"] || "",
+                            "confidence_Llama-3_1-8B-Instruct": row["confidence_Llama-3_1-8B-Instruct"] || "",
+
+                            "answer_Qwen2_5-7B-Instruct": row["answer_Qwen2_5-7B-Instruct"] || "",
+                            "raw_output_Qwen2_5-7B-Instruct": row["raw_output_Qwen2_5-7B-Instruct"] || "",
+                            "confidence_Qwen2_5-7B-Instruct": row["confidence_Qwen2_5-7B-Instruct"] || "",
                         }));
+
                         
                         console.log(`Successfully transformed ${allData.length} questions`);
                         
@@ -647,19 +868,23 @@
             // Split dataset for the annotator - fixed division to prevent overlap
             const totalQuestions = allData.length;
             
-            if (name === "Ryan") {
-                // Ryan gets the first third
-                annotatorData.startIndex = 0;
-                annotatorData.endIndex = Math.floor(totalQuestions / 3) - 1;
-            } else if (name === "Kartik") {
-                // Kartik gets the middle third
-                annotatorData.startIndex = Math.floor(totalQuestions / 3);
-                annotatorData.endIndex = Math.floor(totalQuestions * 2 / 3) - 1;
-            } else {
-                // Tom gets the final third
-                annotatorData.startIndex = Math.floor(totalQuestions * 2 / 3);
-                annotatorData.endIndex = totalQuestions - 1;
-            }
+            // if (name === "Ryan") {
+            //     // Ryan gets the first third
+            //     annotatorData.startIndex = 0;
+            //     annotatorData.endIndex = Math.floor(totalQuestions / 3) - 1;
+            // } else if (name === "Kartik") {
+            //     // Kartik gets the middle third
+            //     annotatorData.startIndex = Math.floor(totalQuestions / 3);
+            //     annotatorData.endIndex = Math.floor(totalQuestions * 2 / 3) - 1;
+            // } else {
+            //     // Tom gets the final third
+            //     annotatorData.startIndex = Math.floor(totalQuestions * 2 / 3);
+            //     annotatorData.endIndex = totalQuestions - 1;
+            // }
+            // Give all annotators access to the full dataset
+            annotatorData.startIndex = 0;
+            annotatorData.endIndex = totalQuestions - 1;
+
             
             annotatorData.questionsCount = annotatorData.endIndex - annotatorData.startIndex + 1;
             
@@ -701,15 +926,19 @@
             annotations = [];
             
             for (let i = annotatorData.startIndex; i <= annotatorData.endIndex; i++) {
-                annotations.push({
+                    annotations.push({
                     originalIndex: i,
                     questionText: "",
-                    difficulty: 0,
-                    confidence: 0,
+                    difficulty: 0,                    // deprecated - won't be saved anymore
+                    confidence: 0,                    // deprecated
                     notes: "",
+                    correctnessDifficulty: 0,        // NEW
+                    correctnessConfidence: 0,        // NEW
+                    correctnessResponse: "",         // NEW
                     isAnnotated: false,
                     lastSaved: null
                 });
+
             }
             
             // Populate question dropdown after initializing annotations
@@ -849,15 +1078,41 @@
             };
             
             // Populate the form
-            document.getElementById('question').value = annotations[index].isAnnotated || annotations[index].questionText ? 
-                annotations[index].questionText : questionData.Question;
+            // document.getElementById('question').value = annotations[index].isAnnotated || annotations[index].questionText ? 
+            //     annotations[index].questionText : questionData.Question;
+            document.getElementById('original-question').value = questionData.Question || "";
+
+            document.getElementById('question').value = annotations[index].isAnnotated || annotations[index].questionText
+                ? annotations[index].questionText
+                : (questionData["Annotated Question"] || "");
+
             
             document.getElementById('correct-answer-text').textContent = questionData["Correct Answer"];
             document.getElementById('incorrect-answer-1-text').textContent = questionData["Incorrect Answer 1"];
             document.getElementById('incorrect-answer-2-text').textContent = questionData["Incorrect Answer 2"];
             document.getElementById('incorrect-answer-3-text').textContent = questionData["Incorrect Answer 3"];
             document.getElementById('subdomain').textContent = `Subdomain: ${questionData.Subdomain}`;
-            
+            // Create or update Difficulty and Confidence tags
+            const difficultyTag = document.createElement('span');
+            difficultyTag.className = 'status-tag';
+            difficultyTag.id = 'difficulty-tag';
+            difficultyTag.textContent = `Difficulty: ${questionData.Difficulty || 'N/A'}`;
+
+            const confidenceTag = document.createElement('span');
+            confidenceTag.className = 'status-tag';
+            confidenceTag.id = 'confidence-tag';
+            confidenceTag.textContent = `Confidence: ${questionData.Confidence || 'N/A'}`;
+
+            // Inject into DOM (after subdomain tag)
+            const subdomainContainer = document.querySelector('.subdomain-container > div');
+            const oldDiffTag = document.getElementById('difficulty-tag');
+            const oldConfTag = document.getElementById('confidence-tag');
+            if (oldDiffTag) oldDiffTag.remove();
+            if (oldConfTag) oldConfTag.remove();
+            subdomainContainer.appendChild(difficultyTag);
+            subdomainContainer.appendChild(confidenceTag);
+
+
             // Set the explanation text
             const explanationText = questionData.Explanation || "No explanation available.";
             document.getElementById('explanation-text').textContent = explanationText;
@@ -871,7 +1126,18 @@
             
             // Set the confidence if it was previously annotated
             setConfidence(annotations[index].confidence);
-            
+
+            currentCorrectnessResponse = annotations[index].correctnessResponse || "";
+
+            document.querySelectorAll('.correctness-btn').forEach(btn => {
+                if (btn.getAttribute('data-value') === currentCorrectnessResponse) {
+                    btn.classList.add('selected');
+                } else {
+                    btn.classList.remove('selected');
+                }
+            });
+
+
             // Set the notes if they exist
             document.getElementById('annotation-notes').value = annotations[index].notes || "";
             
@@ -890,6 +1156,8 @@
             
             // Check if we need to show warnings
             checkRatings();
+
+            renderModelAnswer();
         }
 
         // Handle difficulty selection
@@ -952,14 +1220,20 @@
             
             // Save what we have, even if incomplete
             annotations[currentQuestionIndex].questionText = questionText;
-            annotations[currentQuestionIndex].difficulty = currentDifficulty;
-            annotations[currentQuestionIndex].confidence = currentConfidence;
+            annotations[currentQuestionIndex].correctnessDifficulty = currentDifficulty;
+            annotations[currentQuestionIndex].correctnessConfidence = currentConfidence;
+            annotations[currentQuestionIndex].correctnessResponse = currentCorrectnessResponse;
+
             annotations[currentQuestionIndex].notes = notes;
             
-            // Mark as fully annotated only if all criteria are met
-            if (currentDifficulty > 0 && currentConfidence > 0) {
+            if (
+                currentDifficulty > 0 &&
+                currentConfidence > 0 &&
+                currentCorrectnessResponse !== ""
+            ) {
                 annotations[currentQuestionIndex].isAnnotated = true;
             }
+
             
             annotations[currentQuestionIndex].lastSaved = new Date().toISOString();
             
@@ -1077,17 +1351,21 @@
 
         // Update progress indicators
         function updateProgress() {
-            // Count fully completed annotations (with both ratings)
-            const completedCount = annotations.filter(a => 
-                a.isAnnotated && a.difficulty > 0 && a.confidence > 0
-            ).length;
-            
-            const progressPercent = (completedCount / annotatorData.questionsCount) * 100;
-            
+            // Count how many rows have Difficulty < 5
+            const completedCount = annotations.filter((_, index) => {
+                const dataIndex = annotatorData.startIndex + index;
+                const csvDifficulty = parseInt(allData[dataIndex]?.Difficulty || 0);
+                return csvDifficulty < 5;
+            }).length;
+
+            const total = annotatorData.questionsCount;
+            const progressPercent = (completedCount / total) * 100;
+
             document.getElementById('progress').style.width = `${progressPercent}%`;
             document.getElementById('progress-text').textContent = 
-                `Progress: ${completedCount}/${annotatorData.questionsCount} questions (${Math.round(progressPercent)}%)`;
+                `Progress: ${completedCount}/${total} questions (${Math.round(progressPercent)}%)`;
         }
+
 
         // Save annotations to localStorage
         function saveAnnotations() {
